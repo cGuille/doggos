@@ -1,0 +1,6 @@
+[package]
+name = "doggos"
+version = "0.1.0"
+authors = ["Guillaume Charmetant <cguille.dev@gmail.com>"]
+
+[dependencies]
