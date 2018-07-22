@@ -5,7 +5,7 @@ use actix_web::{server, http, HttpResponse, Responder, App, State, Path, Json};
 use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
 
-#[derive(Clone,Deserialize)]
+#[derive(Clone,Serialize,Deserialize)]
 struct Doggo {
     id: String,
     name: String,
@@ -40,10 +40,11 @@ struct AppState {
 
 fn register_doggo((state, json_doggo): (State<AppState>, Json<Doggo>)) -> impl Responder {
     let mut repo = state.locked_repo.write().unwrap();
+    let doggo = json_doggo.into_inner();
 
-    repo.save(json_doggo.into_inner().to_owned());
+    repo.save(doggo.to_owned());
 
-    HttpResponse::Ok()
+    HttpResponse::Ok().json(doggo)
 }
 
 fn fetch_doggo((state, path) : (State<AppState>, Path<(String,)>)) -> impl Responder {
@@ -51,7 +52,7 @@ fn fetch_doggo((state, path) : (State<AppState>, Path<(String,)>)) -> impl Respo
 
     match repo.find(&path.0) {
         None => HttpResponse::NotFound().finish(),
-        Some(doggo) => HttpResponse::Ok().body(doggo.name),
+        Some(doggo) => HttpResponse::Ok().json(doggo),
     }
 }
 
